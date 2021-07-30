@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Uno (GBC) Deck Shuffler</title>
+        <link href="uno.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1>Uno (GBC) Deck Shuffler</h1>
+        <p>
+        Enter the two values behind memory addresses
+        <code>$d50a</code> and <code>$d50b</code>
+        as one string of four hexadecimal digits after pressing
+        <em>Start</em> at the title screen. They determine the shuffling
+        of the deck and are unchanged until after starting the actual game.
+        </p>
+        <div class="input">
+            <input type="text" id="seedInput" size="4" maxlength="4" autofocus>
+            <button id="deal">Deal</button>
+        </div>
+        <div id="results" style="margin-top: 20px">
+            <table>
+                <tr>
+                    <td><span class="key">Seed</span></td>
+                    <td><span class="value" id="seed"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="key">Discard</span></td>
+                    <td><span class="value" id="discard"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="key">Player</span></td>
+                    <td><span class="value" id="playerCards"></span></td>
+                </tr>
+            </table>
+        </div>
+
+        <script src="uno.js"></script>
+    </body>
+</html>

@@ -15,15 +15,51 @@
         <em>Start</em> at the title screen. They determine the shuffling
         of the deck and are unchanged until after starting the actual game.
         </p>
-        <div class="input">
-            <input type="text" id="seedInput" size="4" maxlength="4" autofocus>
-            <button id="deal">Deal</button>
-        </div>
+        <form id="inputForm">
+            <fieldset>
+                <legend>Select pack type:</legend>
+                <input type="radio" id="packTypeChoice1"
+                                    name="packType" value="normal" checked>
+                <label for="packTypeChoice1">Normal</label>
+
+                <input type="radio" id="packTypeChoice2"
+                                    name="packType" value="special">
+                <label for="packTypeChoice2">Special</label>
+            </fieldset>
+            <fieldset>
+                <legend>Select number of players:</legend>
+                <input type="radio" id="numPlayersChoice1"
+                                    name="numPlayers" value="2" checked>
+                <label for="numPlayersChoice1">2</label>
+
+                <input type="radio" id="numPlayersChoice2"
+                                    name="numPlayers" value="3">
+                <label for="numPlayersChoice2">3</label>
+
+                <input type="radio" id="numPlayersChoice3"
+                                    name="numPlayers" value="4">
+                <label for="numPlayersChoice3">4</label>
+            </fieldset>
+            <fieldset>
+                <legend>Enter seed:</legend>
+                <input type="text" id="seedInput" size="4" maxlength="4" autofocus>
+            </fieldset>
+            <button id="deal">Deal Cards</button>
+        </form>
+        <h2>Results</h2>
         <div id="results" style="margin-top: 20px">
             <table>
                 <tr>
                     <td><span class="key">Seed</span></td>
                     <td><span class="value" id="seed"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="key">Pack Type</span></td>
+                    <td><span class="value" id="packType"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="key">Players</span></td>
+                    <td><span class="value" id="numPlayers"></span></td>
                 </tr>
                 <tr>
                     <td><span class="key">Discard</span></td>

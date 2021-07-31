@@ -87,6 +87,8 @@ function range(start, stop) {
 
 function emptyEverything() {
     document.getElementById("seed").innerHTML = "";
+    document.getElementById("packType").innerHTML = "";
+    document.getElementById("numPlayers").innerHTML = "";
     document.getElementById("discard").innerHTML = "";
     document.getElementById("playerCards").innerHTML = "";
 }
@@ -192,7 +194,7 @@ let uno = {
     shuffle5: function() {
         // @ rom0:$246e
         for (let i = 0; i < 7; ++i) {
-            for (let j = 0; j < 4; ++j) {
+            for (let j = 0; j < this.numPlayers; ++j) {
                 this.shuffle6(0x79+j);
             }
         }
@@ -238,7 +240,8 @@ let uno = {
         }
 
         // @ rom4:$721c
-        for (let i = 0x70; i < 0x78; ++i) {
+        const start = (this.packType == "Special") ? 0x70 : 0x6c;
+        for (let i = start; i < 0x78; ++i) {
             this.shuffle4(i, 0x80);
         }
 
@@ -285,11 +288,42 @@ let uno = {
         this.table2 = this.table2.concat(range(0x00, 0x78));
         this.table2 = this.table2.concat(range(0x79, 0x82));
     },
+    setPackType: function() {
+        const idPackTypeNormal = document.getElementById("packTypeChoice1");
+        const idPackType = document.getElementById("packType");
+
+        if (idPackTypeNormal.checked) {
+            this.packType = "Normal";
+        } else {
+            this.packType = "Special";
+        }
+
+        idPackType.innerHTML = this.packType;
+    },
+    setNumPlayers: function() {
+        const idNumPlayers2 = document.getElementById("numPlayersChoice1");
+        const idNumPlayers3 = document.getElementById("numPlayersChoice2");
+        const idNumPlayers4 = document.getElementById("numPlayersChoice3");
+
+        const idNumPlayers = document.getElementById("numPlayers");
+
+        if (idNumPlayers2.checked) {
+            this.numPlayers = 2;
+        } else if (idNumPlayers3.checked) {
+            this.numPlayers = 3;
+        } else {
+            this.numPlayers = 4;
+        }
+
+        idNumPlayers.innerHTML = this.numPlayers;
+    },
     deal: function() {
         emptyEverything();
         if (!this.parseSeed()) {
             return;
         }
+        this.setPackType();
+        this.setNumPlayers();
         this.initializeTables();
         this.initializeSeed();
         this.shuffleDeck();

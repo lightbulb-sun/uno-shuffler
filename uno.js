@@ -360,12 +360,7 @@ let uno = {
     }
 };
 
-document.getElementById("deal").addEventListener("click", function(event) {
+document.getElementById("inputForm").addEventListener("submit", function(event) {
+    event.preventDefault();
     uno.deal();
-});
-
-document.getElementById("seedInput").addEventListener("keydown", function(event) {
-    if (event.keyCode == 13) {
-        uno.deal();
-    }
 });

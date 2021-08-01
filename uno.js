@@ -395,7 +395,7 @@ let uno = {
         let result = document.createElement("span");
         idDrawPile.innerHTML = "";
 
-        for (let i = 0; i < 16; ++i) {
+        for (let i = 0; i < 32; ++i) {
             const cur = this.table1[0x78];
             const card = poolTable[cur];
             const element = cardToElement(card);

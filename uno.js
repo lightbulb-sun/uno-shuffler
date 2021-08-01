@@ -121,6 +121,11 @@ function emptyEverything() {
     document.getElementById("playerCards").innerHTML = "";
     document.getElementById("firstMove").innerHTML = "";
     document.getElementById("drawPile").innerHTML = "";
+    document.getElementById("opponentCards1").innerHTML = "";
+    document.getElementById("opponentCards2").innerHTML = "";
+    document.getElementById("opponentCards3").innerHTML = "";
+    document.getElementById("rowOpp2").style = "display: none;";
+    document.getElementById("rowOpp3").style = "display: none;";
 }
 
 function cardToElement(card) {
@@ -327,6 +332,25 @@ let uno = {
             idx = cur;
         }
     },
+    dealOpponentCards: function(n) {
+        document.getElementById("rowOpp" + n).style = "display: table-row;";
+        const span = document.getElementById("opponentCards" + n);
+        span.innerHTML = "";
+        let idx = 0x79 + n;
+        for (let i = 0; i < 7; ++i) {
+            let cur = this.table1[idx];
+            let card = poolTable[cur];
+            let element = cardToElement(card);
+            span.appendChild(element);
+            span.appendChild(document.createTextNode(" "));
+            idx = cur;
+        }
+    },
+    dealAllOpponentCards: function() {
+        for (let i = 1; i < this.numPlayers; ++i) {
+            this.dealOpponentCards(i);
+        }
+    },
     discardPile: function() {
         const idDiscardPile = document.getElementById("discard");
         const cur = this.table1[0x7e];
@@ -492,6 +516,7 @@ let uno = {
         this.initializeSeed();
         this.shuffleDeck();
         this.dealOwnCards();
+        this.dealAllOpponentCards();
         this.discardPile();
         this.determineFirstPlayer();
         this.getDrawPile();

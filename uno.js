@@ -93,6 +93,18 @@ const translationTable = [
         ["black", "Boomerang"],
         ];
 
+const playerNames = {
+        0x01: "Bopsy",
+        0x02: "Honey",
+        0x03: "Dizzy",
+        0x04: "Dotty",
+        0x05: "Zeppo",
+        0x06: "Candy",
+        0x07: "Daisy",
+        0x08: "Binky",
+        0x0c: "Player",
+        };
+
 function range(start, stop) {
     let result = [];
     for (let i = start; i < stop; ++i) {
@@ -107,6 +119,7 @@ function emptyEverything() {
     document.getElementById("numPlayers").innerHTML = "";
     document.getElementById("discard").innerHTML = "";
     document.getElementById("playerCards").innerHTML = "";
+    document.getElementById("firstMove").innerHTML = "";
 }
 
 function cardToElement(card) {
@@ -149,6 +162,76 @@ function isLegalSeed(seed) {
         }
     }
     return true;
+}
+
+function switchEndian(x) {
+    return (x >> 8) | ((x & 0xff) << 8);
+}
+
+function fun_1fab(bc, de) {
+    // @ rom0:$1fab
+    if (de == 0) {
+        return 0;
+    }
+    let hl = bc;
+    bc = 0;
+    let a = 0x10;
+    let carry = 0;
+
+    for (;;) {
+        let value = (bc << 16) | hl;
+        let var_d3de = a;
+        let tmp = (value << 1);
+        carry = (tmp > 0xffffffff) ? 1 : 0;
+        value = (tmp & 0xffffffff);
+        bc = (value >> 16);
+        hl = (value & 0xffff);
+        let pushed_bc = bc;
+
+        a = (bc & 0xff);
+        let sub = (a - (de & 0xff) - carry);
+        carry = (sub < 0) ? 1 : 0;
+        a = (sub & 0xff);
+        bc = (bc & 0xff00) | a;
+
+        a = (bc >> 8);
+        sub = (a - (de >> 8) - carry);
+        carry = (sub < 0) ? 1 : 0;
+        a = (sub & 0xff);
+        bc = (bc & 0x00ff) | (a << 8);
+
+        carry = (carry == 1) ? 0 : 1;
+        if (carry == 0) {
+            bc = pushed_bc;
+        }
+
+        a = var_d3de - 1;
+        if (a != 0) {
+            continue;
+        }
+
+        return bc;
+    }
+}
+
+function fun_1ffa(bc, de) {
+    // @ rom0:$1ffa
+    let hl = 0;
+
+    for (let i = 0; i < 15; ++i) {
+        let tmp = (de << 1);
+        if (tmp > 0xffff) {
+            hl += bc;
+        }
+        de = (tmp & 0xffff);
+        hl <<= 1;
+    }
+
+    if ((de & 0x8000)) {
+        hl += bc;
+    }
+
+    return (hl & 0xffff);
 }
 
 let uno = {
@@ -249,6 +332,38 @@ let uno = {
         const element = cardToElement(card);
         idDiscardPile.appendChild(element);
     },
+    determineFirstPlayer: function() {
+        // @ rom61:$7102
+
+        this.nextSeed();
+        let s = switchEndian(this.seed);
+        let e = fun_1fab(s, this.numPlayers) & 0xff;
+
+        this.nextSeed();
+        s = switchEndian(this.seed);
+        const numIterations = fun_1fab(s, 0x05) + 10;
+
+        let result = 0;
+        // @ rom61:$71a3
+        for (let i = 0; i < numIterations; ++i) {
+            // @ rom61:$714a
+            this.nextSeed();
+            s = switchEndian(this.seed);
+            let de = fun_1ffa(s & 0x0f, this.numPlayers);
+            result = (de >> 4);
+        }
+        this.firstPlayer = result;
+
+        let name = "";
+        if (this.firstPlayer == 0) {
+            name = "Player";
+        } else {
+            name = "Opponent #" + this.firstPlayer;
+        }
+
+        const elem = document.getElementById("firstMove");
+        elem.innerHTML = name;
+    },
     shuffleDeck: function() {
         for (let i = 0; i < 17; ++i) {
             this.shuffle0();
@@ -275,6 +390,9 @@ let uno = {
 
         // @ rom4:$72ae
         this.shuffle1(this.table1[0x78], 0x7e);
+
+        // @ rom61:$6c64
+        this.nextSeed();
     },
     nextSeed: function() {
         // @ rom0:2028
@@ -357,6 +475,7 @@ let uno = {
         this.shuffleDeck();
         this.dealOwnCards();
         this.discardPile();
+        this.determineFirstPlayer();
     }
 };
 

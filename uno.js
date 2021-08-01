@@ -33,64 +33,64 @@ const lookupTable = [
         ];
 
 const translationTable = [
-        ["red", "0"],
-        ["red", "1"],
-        ["red", "2"],
-        ["red", "3"],
-        ["red", "4"],
-        ["red", "5"],
-        ["red", "6"],
-        ["red", "7"],
-        ["red", "8"],
-        ["red", "9"],
-        ["red", "+2"],
-        ["red", "Rev"],
-        ["red", "Skip"],
-        ["blue", "0"],
-        ["blue", "1"],
-        ["blue", "2"],
-        ["blue", "3"],
-        ["blue", "4"],
-        ["blue", "5"],
-        ["blue", "6"],
-        ["blue", "7"],
-        ["blue", "8"],
-        ["blue", "9"],
-        ["blue", "+2"],
-        ["blue", "Rev"],
-        ["blue", "Skip"],
-        ["green", "0"],
-        ["green", "1"],
-        ["green", "2"],
-        ["green", "3"],
-        ["green", "4"],
-        ["green", "5"],
-        ["green", "6"],
-        ["green", "7"],
-        ["green", "8"],
-        ["green", "9"],
-        ["green", "+2"],
-        ["green", "Rev"],
-        ["green", "Skip"],
-        ["yellow", "0"],
-        ["yellow", "1"],
-        ["yellow", "2"],
-        ["yellow", "3"],
-        ["yellow", "4"],
-        ["yellow", "5"],
-        ["yellow", "6"],
-        ["yellow", "7"],
-        ["yellow", "8"],
-        ["yellow", "9"],
-        ["yellow", "+2"],
-        ["yellow", "Rev"],
-        ["yellow", "Skip"],
-        ["black", "Wild"],
-        ["black", "+4"],
-        ["black", "Back"],
-        ["black", "All+2"],
-        ["black", "Swap"],
-        ["black", "Boomerang"],
+        ["red", "0", 0],
+        ["red", "1", 1],
+        ["red", "2", 2],
+        ["red", "3", 3],
+        ["red", "4", 4],
+        ["red", "5", 5],
+        ["red", "6", 6],
+        ["red", "7", 7],
+        ["red", "8", 8],
+        ["red", "9", 9],
+        ["red", "+2", 20],
+        ["red", "Rev", 20],
+        ["red", "Skip", 20],
+        ["blue", "0", 0],
+        ["blue", "1", 1],
+        ["blue", "2", 2],
+        ["blue", "3", 3],
+        ["blue", "4", 4],
+        ["blue", "5", 5],
+        ["blue", "6", 6],
+        ["blue", "7", 7],
+        ["blue", "8", 8],
+        ["blue", "9", 9],
+        ["blue", "+2", 20],
+        ["blue", "Rev", 20],
+        ["blue", "Skip", 20],
+        ["green", "0", 0],
+        ["green", "1", 1],
+        ["green", "2", 2],
+        ["green", "3", 3],
+        ["green", "4", 4],
+        ["green", "5", 5],
+        ["green", "6", 6],
+        ["green", "7", 7],
+        ["green", "8", 8],
+        ["green", "9", 9],
+        ["green", "+2", 20],
+        ["green", "Rev", 20],
+        ["green", "Skip", 20],
+        ["yellow", "0", 0],
+        ["yellow", "1", 1],
+        ["yellow", "2", 2],
+        ["yellow", "3", 3],
+        ["yellow", "4", 4],
+        ["yellow", "5", 5],
+        ["yellow", "6", 6],
+        ["yellow", "7", 7],
+        ["yellow", "8", 8],
+        ["yellow", "9", 9],
+        ["yellow", "+2", 20],
+        ["yellow", "Rev", 20],
+        ["yellow", "Skip", 20],
+        ["black", "Wild", 50],
+        ["black", "+4", 50],
+        ["black", "Back", 0],
+        ["black", "All+2", 75],
+        ["black", "Swap", 75],
+        ["black", "Boomerang", 75],
         ];
 
 const playerNames = {
@@ -321,30 +321,40 @@ let uno = {
     },
     dealOwnCards: function() {
         const idPlayerCards = document.getElementById("playerCards");
+        let totalPoints = 0;
         idPlayerCards.innerHTML = "";
         let idx = 0x79;
         for (let i = 0; i < 7; ++i) {
             let cur = this.table1[idx];
             let card = poolTable[cur];
             let element = cardToElement(card);
+            let points = translationTable[card][2];
+            totalPoints += points;
             idPlayerCards.appendChild(element);
             idPlayerCards.appendChild(document.createTextNode(" "));
             idx = cur;
         }
+        const pointsNode = document.createTextNode("(" + totalPoints + " points)");
+        idPlayerCards.appendChild(pointsNode);
     },
     dealOpponentCards: function(n) {
         document.getElementById("rowOpp" + n).style = "display: table-row;";
         const span = document.getElementById("opponentCards" + n);
+        let totalPoints = 0;
         span.innerHTML = "";
         let idx = 0x79 + n;
         for (let i = 0; i < 7; ++i) {
             let cur = this.table1[idx];
             let card = poolTable[cur];
             let element = cardToElement(card);
+            let points = translationTable[card][2];
+            totalPoints += points;
             span.appendChild(element);
             span.appendChild(document.createTextNode(" "));
             idx = cur;
         }
+        const pointsNode = document.createTextNode("(" + totalPoints + " points)");
+        span.appendChild(pointsNode);
     },
     dealAllOpponentCards: function() {
         for (let i = 1; i < this.numPlayers; ++i) {

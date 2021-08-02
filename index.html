@@ -12,8 +12,7 @@
         Enter the two values behind memory addresses
         <code>$d50a</code> and <code>$d50b</code>
         as one string of four hexadecimal digits after pressing
-        <em>Start</em> at the title screen. They determine the shuffling
-        of the deck and are unchanged until after starting the actual game.
+        <em>Start</em> at the title screen.
         </p>
         <form id="inputForm">
             <table>
@@ -46,15 +45,45 @@
                             <label for="numPlayersChoice3">4</label>
                         </fieldset>
                     </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
                     <td>
                         <fieldset>
-                            <legend>Seed:</legend>
+                            <legend>Select skill:</legend>
+                            <input type="radio" id="skillChoice1"
+                                                name="skill" value="1" checked>
+                            <label for="skillChoice1">1</label>
+
+                            <input type="radio" id="skillChoice2"
+                                                name="skill" value="2">
+                            <label for="skillChoice2">2</label>
+
+                            <input type="radio" id="skillChoice3"
+                                                name="skill" value="3">
+                            <label for="skillChoice3">3</label>
+
+                            <input type="radio" id="skillChoice4"
+                                                name="skill" value="4">
+                            <label for="skillChoice4">4</label>
+
+                            <input type="radio" id="skillChoice5"
+                                                name="skill" value="5">
+                            <label for="skillChoice5">5</label>
+                        </fieldset>
+                    </td>
+                    <td>
+                        <fieldset>
+                            <legend>Enter seed:</legend>
                             <input type="text" id="seedInput" size="4" maxlength="4" autofocus>
                         </fieldset>
                     </td>
+                    <td>
+                        <button id="deal">Deal Cards</button>
+                    </td>
                 </tr>
             </table>
-            <button id="deal">Deal Cards</button>
         </form>
         <div id="results">
             <table>
@@ -69,6 +98,10 @@
                 <tr>
                     <td><span class="key">Players</span></td>
                     <td><span class="value" id="numPlayers"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="key">Skill</span></td>
+                    <td><span class="value" id="skill"></span></td>
                 </tr>
                 <tr>
                     <td><span class="key">Hand</span></td>

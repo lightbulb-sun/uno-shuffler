@@ -1,3 +1,13 @@
+const opponentIndicesTable = [
+        0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x01,
+        0x02, 0x03, 0x04, 0x06, 0x07, 0x08, 0x09, 0x08, 0x09,
+        0x0a, 0x0b, 0x00, 0x01, 0x02, 0x03, 0x01, 0x02, 0x03,
+        0x04, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+        0x08, 0x09, 0x0a, 0x0b, 0x00, 0x01, 0x02, 0x03, 0x02,
+        0x03, 0x04, 0x05, 0x05, 0x06, 0x07, 0x08, 0x08, 0x09,
+        0x0a, 0x0b, 0x08, 0x09, 0x0a, 0x0b,
+        ];
+
 const poolTable = [
         0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04,
         0x05, 0x05, 0x06, 0x06, 0x07, 0x07, 0x08, 0x08, 0x09,
@@ -93,7 +103,8 @@ const translationTable = [
         ["black", "Boomerang", 75],
         ];
 
-const playerNames = {
+const opponentNameTable = {
+        0x00: "Angel",
         0x01: "Bopsy",
         0x02: "Honey",
         0x03: "Dizzy",
@@ -102,7 +113,11 @@ const playerNames = {
         0x06: "Candy",
         0x07: "Daisy",
         0x08: "Binky",
-        0x0c: "Player",
+        0x09: "Elvis",
+        0x0a: "Lucky",
+        0x0b: "Norty",
+        0x0c: "Maxie",
+        0x0d: "Laslo",
         };
 
 function range(start, stop) {
@@ -117,6 +132,7 @@ function emptyEverything() {
     document.getElementById("seed").innerHTML = "";
     document.getElementById("packType").innerHTML = "";
     document.getElementById("numPlayers").innerHTML = "";
+    document.getElementById("skill").innerHTML = "";
     document.getElementById("discard").innerHTML = "";
     document.getElementById("playerCards").innerHTML = "";
     document.getElementById("firstMove").innerHTML = "";
@@ -124,8 +140,13 @@ function emptyEverything() {
     document.getElementById("opponentCards1").innerHTML = "";
     document.getElementById("opponentCards2").innerHTML = "";
     document.getElementById("opponentCards3").innerHTML = "";
+    document.getElementById("rowOpp1").style = "display: none;";
     document.getElementById("rowOpp2").style = "display: none;";
     document.getElementById("rowOpp3").style = "display: none;";
+    document.getElementById("hand").style = "color: #000";
+    document.getElementById("opponentName1").style = "color: #000";
+    document.getElementById("opponentName2").style = "color: #000";
+    document.getElementById("opponentName3").style = "color: #000";
 }
 
 function cardToElement(card) {
@@ -391,10 +412,16 @@ let uno = {
         this.firstPlayer = result;
 
         let name = "";
+        const style = "color: #3180de";
         if (this.firstPlayer == 0) {
             name = "Player";
+            const elem = document.getElementById("hand");
+            elem.style = style;
         } else {
-            name = "Opponent #" + this.firstPlayer;
+            const idx = this.firstPlayer;
+            name = this.opponentNames[idx-1];
+            const elem = document.getElementById("opponentName" + idx);
+            elem.style = style;
         }
 
         const elem = document.getElementById("firstMove");
@@ -486,6 +513,16 @@ let uno = {
         this.table2 = this.table2.concat(range(0x00, 0x78));
         this.table2 = this.table2.concat(range(0x79, 0x82));
     },
+    setSkill: function() {
+        for (let i = 1; i < 6; ++i) {
+            const elem = document.getElementById("skillChoice" + i);
+            if (elem.checked) {
+                this.skill = i;
+                break;
+            }
+        }
+        document.getElementById("skill").innerHTML = this.skill;
+    },
     setPackType: function() {
         const idPackTypeNormal = document.getElementById("packTypeChoice1");
         const idPackType = document.getElementById("packType");
@@ -515,14 +552,108 @@ let uno = {
 
         idNumPlayers.innerHTML = this.numPlayers;
     },
+    getOpponentIndex: function(x, y) {
+        // @ rom0:$2f04
+        this.nextSeed();
+
+        let e = (switchEndian(this.seed) >> 8) & 0x03;
+        let de = fun_1ffa(0x14, y) + 0x2ec8;
+        let temp = (x << 2);
+        let total = (temp & 0xff) + (de & 0xff);
+        let carry = (total > 0xff) ? 1 : 0;
+        total &= 0xff;
+        let d = (temp >> 8) + (de >> 8) + carry;
+
+        total += (e & 0xff);
+        carry = (total > 0xff) ? 1 : 0;
+        total &= 0xff;
+        d = (e >> 8) + d + carry;
+
+        let idx = ((d << 8) | total) - 0x2ec8;
+
+        return opponentIndicesTable[idx];
+    },
+    generate1OpponentName: function() {
+        // @ rom0:$2f79
+        this.opponentIndices = [this.getOpponentIndex(this.skill-1, 0x01)];
+    },
+    generate2OpponentNames: function() {
+        // @ rom0:$2f8c
+        let a = this.getOpponentIndex(this.skill-1, 0x00);
+        let b = -1;
+        do {
+            b = this.getOpponentIndex(this.skill-1, 0x02);
+        } while (a == b);
+
+        this.nextSeed();
+        if (((this.seed >> 8) & 0x10) != 0) {
+            let tmp = a;
+            a = b;
+            b = tmp;
+        }
+        this.opponentIndices = [a, b];
+    },
+    generate3OpponentNames: function() {
+        // @ rom0:$2fe9
+        let a = this.getOpponentIndex(this.skill-1, 0x00);
+        let b = -1;
+        let c = -1;
+        do {
+            b = this.getOpponentIndex(this.skill-1, 0x01);
+        } while (a == b);
+        do {
+            c = this.getOpponentIndex(this.skill-1, 0x02);
+        } while ((a == c) || (b == c));
+        let result = [a, b, c];
+
+        this.nextSeed();
+        let idx = fun_1fab(this.seed >> 8, 0x03);
+        let tmp = result[idx];
+        result[idx] = result[2];
+        result[2] = tmp;
+
+        this.nextSeed();
+        if (((this.seed >> 8) & 0x0f) != 0) {
+            tmp = result[0];
+            result[0] = result[1];
+            result[1] = tmp;
+        }
+        this.opponentIndices = result;
+    },
+    generateOpponentNames: function() {
+        const oldSeed = this.seed;
+        this.seed = switchEndian(this.seed);
+        switch (this.numPlayers) {
+            case 2:
+                this.generate1OpponentName();
+                break;
+            case 3:
+                this.generate2OpponentNames();
+                break;
+            case 4:
+                this.generate3OpponentNames();
+                break;
+        }
+        this.seed = oldSeed;
+        this.opponentNames = this.opponentIndices.map(x => opponentNameTable[x]);
+    },
+    displayOpponentNames: function() {
+        for (let i = 1; i < this.numPlayers; ++i) {
+            let elem = document.getElementById("opponentName" + i);
+            elem.innerHTML = this.opponentNames[i-1];
+        }
+    },
     deal: function() {
         emptyEverything();
         if (!this.parseSeed()) {
             return;
         }
+        this.setSkill();
         this.setPackType();
         this.setNumPlayers();
         this.initializeTables();
+        this.generateOpponentNames();
+        this.displayOpponentNames();
         this.initializeSeed();
         this.shuffleDeck();
         this.dealOwnCards();
